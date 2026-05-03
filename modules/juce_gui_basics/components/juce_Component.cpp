@@ -37,6 +37,8 @@
                && MessageManager::getInstanceWithoutCreating()->currentThreadHasLockedMessageManager()) \
               || getPeer() == nullptr);
 
+#include "../../juce_TracyBridge.h"
+
 namespace juce
 {
 
@@ -318,6 +320,7 @@ void Component::setComponentID (const String& newID)
 
 void Component::setVisible (bool shouldBeVisible)
 {
+    JUCE_TRACY_ZONE_C("Component::setVisible", 0x9b59b6);
     if (flags.visibleFlag != shouldBeVisible)
     {
         // if component methods are being called from threads other than the message
@@ -620,6 +623,7 @@ void Component::setBufferedToImage (bool shouldBeBuffered)
 
 void Component::invalidateCachedImageResources()
 {
+    JUCE_TRACY_ZONE_C("Component::invalidateCachedImageResources", 0xe74c3c);
     if (cachedImage != nullptr)
         cachedImage->releaseResources();
 
@@ -838,6 +842,7 @@ Rectangle<float> Component::localAreaToGlobal  (Rectangle<float> area) const  { 
 //==============================================================================
 void Component::setBounds (int x, int y, int w, int h)
 {
+    JUCE_TRACY_ZONE("Component::setBounds");
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
     JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
@@ -907,6 +912,7 @@ void Component::sendMovedResizedMessagesIfPending()
 
 void Component::sendMovedResizedMessages (bool wasMoved, bool wasResized)
 {
+    JUCE_TRACY_ZONE("Component::sendMovedResizedMessages");
     BailOutChecker checker (this);
 
     if (wasMoved)

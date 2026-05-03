@@ -32,6 +32,8 @@
   ==============================================================================
 */
 
+#include "../../juce_TracyBridge.h"
+
 namespace juce
 {
 
@@ -198,6 +200,13 @@ private:
 
     static void dispatchMessage (MessageManager::MessageBase* message)
     {
+        JUCE_TRACY_ZONE("JUCE::dispatchMessage");
+       #ifdef TRACY_ENABLE
+        {
+            const char* typeName = typeid (*message).name();
+            ZoneText (typeName, strlen (typeName));
+        }
+       #endif
         JUCE_TRY
         {
             message->messageCallback();
@@ -227,6 +236,7 @@ private:
 
     void dispatchMessages()
     {
+        JUCE_TRACY_ZONE("JUCE::dispatchMessages");
         ReferenceCountedArray<MessageManager::MessageBase> messagesToDispatch;
 
         {
@@ -244,6 +254,8 @@ private:
             message->incReferenceCount();
             dispatchMessage (message.get());
         }
+
+        JUCE_TRACY_FRAME_MARK();
     }
 
     //==============================================================================

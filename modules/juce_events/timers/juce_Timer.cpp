@@ -32,6 +32,8 @@
   ==============================================================================
 */
 
+#include "../../juce_TracyBridge.h"
+
 namespace juce
 {
 
@@ -167,6 +169,11 @@ public:
 
             JUCE_TRY
             {
+                JUCE_TRACY_TIMER_ZONE("JUCE::Timer::timerCallback");
+               #ifdef TRACY_ENABLE
+                const char* typeName = typeid (*timer).name();
+                ZoneText (typeName, strlen (typeName));
+               #endif
                 timer->timerCallback();
             }
             JUCE_CATCH_EXCEPTION
