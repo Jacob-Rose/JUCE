@@ -843,6 +843,10 @@ Rectangle<float> Component::localAreaToGlobal  (Rectangle<float> area) const  { 
 void Component::setBounds (int x, int y, int w, int h)
 {
     JUCE_TRACY_ZONE("Component::setBounds");
+   #ifdef TRACY_ENABLE
+    const char* componentTypeName = typeid (*this).name();
+    ZoneText (componentTypeName, strlen (componentTypeName));
+   #endif
     // if component methods are being called from threads other than the message
     // thread, you'll need to use a MessageManagerLock object to make sure it's thread-safe.
     JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN
@@ -913,6 +917,10 @@ void Component::sendMovedResizedMessagesIfPending()
 void Component::sendMovedResizedMessages (bool wasMoved, bool wasResized)
 {
     JUCE_TRACY_ZONE("Component::sendMovedResizedMessages");
+   #ifdef TRACY_ENABLE
+    const char* componentTypeName = typeid (*this).name();
+    ZoneText (componentTypeName, strlen (componentTypeName));
+   #endif
     BailOutChecker checker (this);
 
     if (wasMoved)
