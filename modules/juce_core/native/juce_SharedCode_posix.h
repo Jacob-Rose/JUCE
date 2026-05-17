@@ -954,6 +954,15 @@ public:
     void apply ([[maybe_unused]] PosixThreadAttribute& attr) const
     {
        #if JUCE_LINUX || JUCE_BSD
+        #if JAKE_LINUX_MOD
+         // Hardened Linux kernels (e.g. CachyOS) reject pthread_create with
+         // EPERM when PTHREAD_EXPLICIT_SCHED is set even with SCHED_OTHER +
+         // priority 0 - the kernel defaults. Since that combination is a
+         // no-op anyway, skip it so non-realtime threads can be created.
+         if (scheduler == SCHED_OTHER && priority == 0)
+             return;
+        #endif
+
         struct sched_param param{};
         param.sched_priority = getPriority();
 
