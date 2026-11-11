@@ -32,6 +32,8 @@
   ==============================================================================
 */
 
+#include "../../juce_TracyBridge.h"
+
 namespace juce
 {
 
@@ -580,10 +582,21 @@ private:
 
         void dispatchDeferredRepaints()
         {
+            JUCE_TRACY_ZONE ("JUCE::Linux::vblankDispatch");
             XWindowSystem::getInstance()->processPendingPaintsForWindow (peer.windowH);
 
             if (XWindowSystem::getInstance()->getNumPaintsPendingForWindow (peer.windowH) > 0)
+            {
+               #ifdef TRACY_ENABLE
+                // Counter zone: dirty regions are waiting, but the previous XShm blit
+                // hasn't completed, so this vblank tick paints nothing.
+                if (! regionsNeedingRepaint.isEmpty())
+                {
+                    JUCE_TRACY_ZONE ("JUCE::Linux::repaintDeferredShmPending");
+                }
+               #endif
                 return;
+            }
 
             if (! regionsNeedingRepaint.isEmpty())
                 performAnyPendingRepaintsNow();
@@ -607,6 +620,7 @@ private:
 
             if (! totalArea.isEmpty())
             {
+                JUCE_TRACY_ZONE ("JUCE::Linux::peerPaint");
                 const auto wasImageNull = image.isNull();
 
                 if (wasImageNull || image.getWidth() < totalArea.getWidth()
