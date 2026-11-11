@@ -652,7 +652,16 @@ private:
                 RectangleList<int> adjustedList (originalRepaintRegion);
                 adjustedList.offsetAll (-totalArea.getX(), -totalArea.getY());
 
-                if (XWindowSystem::getInstance()->canUseARGBImages())
+               #if JAKE_LINUX_MOD
+                // An opaque component must paint every pixel it covers, so clearing
+                // the regions first is redundant for an opaque window: a full-area
+                // memset per frame (~MBs at fullscreen HiDPI) for nothing.
+                const auto needsClear = ! peer.getComponent().isOpaque();
+               #else
+                const auto needsClear = true;
+               #endif
+
+                if (needsClear && XWindowSystem::getInstance()->canUseARGBImages())
                     for (auto& i : originalRepaintRegion)
                         image.clear (i - totalArea.getPosition());
 
