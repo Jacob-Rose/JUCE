@@ -2048,7 +2048,12 @@ void XWindowSystem::updateSizeHints (::Window windowH, ComponentPeer& peer, Rect
                 return {};
             }();
 
-            const auto factor       = peer.getPlatformScaleFactor();
+            // Constrainer limits are in component (logical) units. Logical -> physical is the
+            // platform scale times the Desktop global scale; the platform scale alone left
+            // the global scale out, so with a global scale of 1.5 a 2560x1440 max-size limit
+            // reached the window manager as 2560x1440 physical pixels and capped
+            // maximised/fullscreen windows at 2/3 of the screen (min size likewise too small).
+            const auto factor       = peer.getPlatformScaleFactor() * (double) Desktop::getInstance().getGlobalScaleFactor();
             const auto leftAndRight = windowBorder.getLeftAndRight();
             const auto topAndBottom = windowBorder.getTopAndBottom();
 
